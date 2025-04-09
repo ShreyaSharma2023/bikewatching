@@ -3,18 +3,50 @@ import mapboxgl from "mapbox-gl";
 import "../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 mapboxgl.accessToken = "pk.eyJ1Ijoic2hyZXlhc2hhcm1hMjAyNSIsImEiOiJjbTkxcGZraTQwM2owMmpwcXBwZ3U1Z20wIn0.GxhB5GSOaHAUUZ9LK8soOw";
 import { onMount } from "svelte";
+async function initMap() {
+	let map = new mapboxgl.Map({
+		container: 'map',
+		center: [-71.09415, 42.36027],
+		zoom: 12,
+		style: "mapbox://styles/mapbox/streets-v12",
+	});
+	await new Promise(resolve => map.on("load", resolve));
+	map.addSource("boston_route", {
+		type: "geojson",
+		data: "https://bostonopendata-boston.opendata.arcgis.com/datasets/boston::existing-bike-network-2022.geojson?outSR=%7B%22latestWkid%22%3A3857%2C%22wkid%22%3A102100%7D",
+	});
+    	map.addSource("cambridge_route", {
+		type: "geojson",
+		data: "https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson",
+	});
+    map.addLayer({
+	id: "Boston_ID", // A name for our layer (up to you)
+	type: "line", // one of the supported layer types, e.g. line, circle, etc.
+	source: "boston_route", // The id we specified in `addSource()`
+    paint: {
+        "line-color": "#008000", // Green color (Hex code format)
+        "line-width": 3, // Width of the line
+        "line-opacity": 0.4 // Opacity (0 = invisible, 1 = fully visible)
+    }
+});
+    map.addLayer({
+	id: "Cambridge_ID", // A name for our layer (up to you)
+	type: "line", // one of the supported layer types, e.g. line, circle, etc.
+	source: "cambridge_route", // The id we specified in `addSource()`
+    paint: {
+        "line-color": "#008000", // Green color (Hex code format)
+        "line-width": 3, // Width of the line
+        "line-opacity": 0.4 // Opacity (0 = invisible, 1 = fully visible)
+    }
+});
 
+}
 onMount(() => {
-        let map = new mapboxgl.Map({
-            container: "map", // ID of the div element for the map
-            style: "mapbox://styles/mapbox/streets-v12", // Map style
-            center: [-71.0589, 42.3601], // Coordinates for Cambridge/Boston (longitude, latitude)
-            zoom: 12, // Initial zoom level
-        });
-
+	    initMap();
         // Optional: Add zoom & rotation controls
         map.addControl(new mapboxgl.NavigationControl());
     });
+
 </script>
 
 <h1>Bikewatching</h1>
