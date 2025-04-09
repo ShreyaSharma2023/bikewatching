@@ -7,6 +7,15 @@ import { onMount } from "svelte";
 let map;
 let mapViewChanged = 0;
 let radiusScale;
+    let selectedTime = -1; // Default to "any time"
+
+    function formatTime(minutes) {
+        if (minutes === -1) return "";
+        let hours = Math.floor(minutes / 60);
+        let mins = minutes % 60;
+        return `${hours}:${mins.toString().padStart(2, '0')}`;
+    }
+    
 function getCoords (station) {
 	let point = new mapboxgl.LngLat(+station.Long, +station.Lat);
 	let {x, y} = map.project(point);
@@ -83,7 +92,14 @@ onMount(async () => {
 </script>
 
 <h1>Bikewatching</h1>
-<p>This will be an interactive page about bikes</p>
+    <label>
+        Filter by time:
+        <input type="range" min="-1" max="1440" bind:value={selectedTime} />
+        <time>{formatTime(selectedTime)}</time>
+        {#if selectedTime == -1}
+            <em>(any time)</em>
+        {/if}
+    </label>
 <div id="map">
 	<svg>
     {#key mapViewChanged}

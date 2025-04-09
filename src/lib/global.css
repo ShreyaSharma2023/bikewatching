@@ -28,3 +28,25 @@ body {
     stroke: white;
     stroke-width: 1;
 }
+
+header {
+    display: flex;
+    gap: 1em;
+    align-items: baseline;
+}
+
+label {
+    margin-left: auto; /* Push the filter to the right */
+}
+
+time {
+    display: block;
+    font-weight: bold;
+}
+
+em {
+    display: block;
+    color: gray;
+    font-style: italic;
+}
+
