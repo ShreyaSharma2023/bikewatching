@@ -175,6 +175,11 @@ async function getIso(lon, lat) {
 	const query = await fetch(url, { method: 'GET' });
 	isochrone = await query.json();
 }
+$: if (selectedStation) {
+	getIso(+selectedStation.Long, +selectedStation.Lat);
+} else {
+	isochrone = null;
+}
 
 
 </script>
