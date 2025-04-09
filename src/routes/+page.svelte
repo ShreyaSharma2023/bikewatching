@@ -133,6 +133,30 @@ onMount(async () => {
 });
 
 });
+const urlBase = 'https://api.mapbox.com/isochrone/v1/mapbox/';
+const profile = 'cycling';
+const minutes = [5, 10, 15, 20];
+const contourColors = [
+	"03045e",
+	"0077b6",
+	"00b4d8",
+	"90e0ef"
+]
+let isochrone = null;
+
+async function getIso(lon, lat) {
+	const base = `${urlBase}${profile}/${lon},${lat}`;
+	const params = new URLSearchParams({
+		contours_minutes: minutes.join(','),
+		contours_colors: contourColors.join(','),
+		polygons: 'true',
+		access_token: mapboxgl.accessToken
+	});
+	const url = `${base}?${params.toString()}`;
+
+	const query = await fetch(url, { method: 'GET' });
+	isochrone = await query.json();
+}
 
 
 </script>
@@ -166,7 +190,6 @@ onMount(async () => {
 	<div style="--departure-ratio: 0.5">Balanced</div>
 	<div style="--departure-ratio: 0">More arrivals</div>
 </div>
-
 
 <style>
 @import url("$lib/global.css");
