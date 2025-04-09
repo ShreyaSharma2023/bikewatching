@@ -40,6 +40,23 @@ function getCoords (station) {
 function minutesSinceMidnight (date) {
 	return date.getHours() * 60 + date.getMinutes();
 }
+
+function geoJSONPolygonToPath(feature) {
+	const path = d3.path();
+	const rings = feature.geometry.coordinates;
+
+	for (const ring of rings) {
+		for (let i = 0; i < ring.length; i++) {
+			const [lng, lat] = ring[i];
+			const { x, y } = map.project([lng, lat]);
+			if (i === 0) path.moveTo(x, y);
+			else path.lineTo(x, y);
+		}
+		path.closePath();
+	}
+	return path.toString();
+}
+
 $: filteredTrips = timeFilter === -1? trips : trips.filter(trip => {
 	let startedMinutes = minutesSinceMidnight(trip.started_at);
 	let endedMinutes = minutesSinceMidnight(trip.ended_at);
@@ -175,17 +192,31 @@ async function getIso(lon, lat) {
         {/if}
     </label>
 <div id="map">
-	<svg>
-    {#key mapViewChanged}
-        {#each filteredStations as station}
+    <svg>
+        {#key mapViewChanged}
+            {#if isochrone}
+                {#each isochrone.features as feature}
+                    <path
+                            d={geoJSONPolygonToPath(feature)}
+                            fill={feature.properties.fillColor}
+                            fill-opacity="0.2"
+                            stroke="#000000"
+                            stroke-opacity="0.5"
+                            stroke-width="1"
+                    >
+                        <title>{feature.properties.contour} minutes of biking</title>
+                    </path>
+                {/each}
+            {/if}
+            {#each filteredStations as station}
 	        <circle { ...getCoords(station) } 
             r={radiusScale(station.totalTraffic)} 
             style="--departure-ratio: { stationFlow(station.departures / station.totalTraffic) }"
             class={station?.Number === selectedStation?.Number ? "selected" : ""}
 	        on:mousedown={() => selectedStation = selectedStation?.Number !== station?.Number ? station : null}
 />
-        {/each}
-    {/key}
+            {/each}
+        {/key}
     </svg>
 </div>
 <div class="legend">
