@@ -15,7 +15,10 @@ let radiusScale;
         let mins = minutes % 60;
         return `${hours}:${mins.toString().padStart(2, '0')}`;
     }
-    
+let timeFilter = -1;
+$: timeFilterLabel = new Date(0, 0, 0, 0, timeFilter)
+                     .toLocaleString("en", {timeStyle: "short"});
+
 function getCoords (station) {
 	let point = new mapboxgl.LngLat(+station.Long, +station.Lat);
 	let {x, y} = map.project(point);
@@ -94,10 +97,13 @@ onMount(async () => {
 <h1>Bikewatching</h1>
     <label>
         Filter by time:
-        <input type="range" min="-1" max="1440" bind:value={selectedTime} />
-        <time>{formatTime(selectedTime)}</time>
-        {#if selectedTime == -1}
-            <em>(any time)</em>
+        <input type="range" min="-1" max="1440" bind:value={timeFilter} />
+        {#if timeFilter !== -1}
+            <time style="display: block">
+                {timeFilterLabel}
+            </time>
+        {:else}
+            <em style="display: block">(any time)</em>
         {/if}
     </label>
 <div id="map">
