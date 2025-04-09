@@ -8,6 +8,10 @@ import { scaleSqrt } from "d3-scale";
 let map;
 let mapViewChanged = 0;
 let radiusScale;
+let stationFlow = d3.scaleQuantize()
+	.domain([0, 1])
+	.range([0, 0.5, 1]);
+
 let selectedTime = -1; // Default to "any time"
 // Define a radius scale that changes based on time filtering
 function getRadius(value) {
@@ -149,10 +153,18 @@ onMount(async () => {
 	<svg>
     {#key mapViewChanged}
         {#each filteredStations as station}
-	        <circle { ...getCoords(station) } r={radiusScale(station.totalTraffic)} />
+	        <circle { ...getCoords(station) } 
+            r={radiusScale(station.totalTraffic)} 
+            style="--departure-ratio: { stationFlow(station.departures / station.totalTraffic) }"
+/>
         {/each}
     {/key}
     </svg>
+</div>
+<div class="legend">
+	<div style="--departure-ratio: 1">More departures</div>
+	<div style="--departure-ratio: 0.5">Balanced</div>
+	<div style="--departure-ratio: 0">More arrivals</div>
 </div>
 
 
