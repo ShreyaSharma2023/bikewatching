@@ -14,3 +14,11 @@ body {
 	background-color: yellow; /* Change to any color */
 }
 
+#map svg {
+    position: absolute; /* Ensures the SVG is positioned correctly */
+    z-index: 1; /* Places the SVG above the map */
+    width: 100%; /* Makes it fill the map container */
+    height: 100%; /* Ensures full coverage */
+    pointer-events: none; /* Allows map interactions through the SVG */
+}
+

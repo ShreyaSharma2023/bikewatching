@@ -1,10 +1,20 @@
 <script>
+import * as d3 from "d3";
 import mapboxgl from "mapbox-gl";
 import "../../node_modules/mapbox-gl/dist/mapbox-gl.css";
 mapboxgl.accessToken = "pk.eyJ1Ijoic2hyZXlhc2hhcm1hMjAyNSIsImEiOiJjbTkxcGZraTQwM2owMmpwcXBwZ3U1Z20wIn0.GxhB5GSOaHAUUZ9LK8soOw";
 import { onMount } from "svelte";
+let map;
+let mapViewChanged = 0;
+
+function getCoords (station) {
+	let point = new mapboxgl.LngLat(+station.Long, +station.Lat);
+	let {x, y} = map.project(point);
+	return {cx: x, cy: y};
+}
+
 async function initMap() {
-	let map = new mapboxgl.Map({
+	    map = new mapboxgl.Map({
 		container: 'map',
 		center: [-71.09415, 42.36027],
 		zoom: 12,
@@ -39,19 +49,30 @@ async function initMap() {
         "line-opacity": 0.4 // Opacity (0 = invisible, 1 = fully visible)
     }
 });
-
 }
+$: map?.on("move", evt => mapViewChanged++);
+
 onMount(() => {
 	    initMap();
-        // Optional: Add zoom & rotation controls
-        map.addControl(new mapboxgl.NavigationControl());
     });
-
+let stations = [];
+onMount(async () => {
+    const data = await d3.csv("https://vis-society.github.io/labs/8/data/bluebikes-stations.csv");
+    stations = [...data]; // Spread to trigger reactivity
+});
 </script>
 
 <h1>Bikewatching</h1>
 <p>This will be an interactive page about bikes</p>
-<div id="map" />
+<div id="map">
+	<svg>
+    {#key mapViewChanged}
+        {#each stations as station}
+	        <circle { ...getCoords(station) } r="5" fill="steelblue" />
+        {/each}
+    {/key}
+    </svg>
+</div>
 
 
 <style>
