@@ -19,6 +19,7 @@ function getRadius(value) {
         .domain([0, 100]) // Adjust domain based on your data range
         .range(selectedTime === -1 ? [0, 25] : [3, 30])(value);
 }
+let selectedStation = null;
 
 function formatTime(minutes) {
     if (minutes === -1) return "";
@@ -180,6 +181,8 @@ async function getIso(lon, lat) {
 	        <circle { ...getCoords(station) } 
             r={radiusScale(station.totalTraffic)} 
             style="--departure-ratio: { stationFlow(station.departures / station.totalTraffic) }"
+            class={station?.Number === selectedStation?.Number ? "selected" : ""}
+	        on:mousedown={() => selectedStation = selectedStation?.Number !== station?.Number ? station : null}
 />
         {/each}
     {/key}

@@ -20,6 +20,7 @@ body {
     width: 100%; /* Makes it fill the map container */
     height: 100%; /* Ensures full coverage */
     pointer-events: none; /* Allows map interactions through the SVG */
+
 }
 
 #map svg circle {
@@ -33,11 +34,19 @@ body {
 	in oklch,
 	var(--color-departures) calc(100% * var(--departure-ratio)),
 	var(--color-arrivals)
+
 );
 fill: var(--color);
-
+}
+#map svg circle {
+	transition: opacity 0.2s ease;
+	pointer-events: auto;
 }
 
+/* Dims other circles when one is selected */
+#map svg:has(circle.selected) circle:not(.selected) {
+	opacity: 0.3;
+}
 header {
     display: flex;
     gap: 1em;
