@@ -6,7 +6,7 @@ mapboxgl.accessToken = "pk.eyJ1Ijoic2hyZXlhc2hhcm1hMjAyNSIsImEiOiJjbTkxcGZraTQwM
 import { onMount } from "svelte";
 let map;
 let mapViewChanged = 0;
-
+let radiusScale;
 function getCoords (station) {
 	let point = new mapboxgl.LngLat(+station.Long, +station.Lat);
 	let {x, y} = map.project(point);
@@ -51,15 +51,35 @@ async function initMap() {
 });
 }
 $: map?.on("move", evt => mapViewChanged++);
-
+$: radiusScale = d3.scaleSqrt()
+	.domain([0, d3.max(stations, d => d.totalTraffic) || 0])
+	.range([0, 25]);
 onMount(() => {
 	    initMap();
     });
 let stations = [];
+let trips = [];
+let departures;
+let arrivals;
+
 onMount(async () => {
     const data = await d3.csv("https://vis-society.github.io/labs/8/data/bluebikes-stations.csv");
     stations = [...data]; // Spread to trigger reactivity
+    const data2 = await d3.csv("https://vis-society.github.io/labs/8/data/bluebikes-traffic-2024-03.csv");
+    trips = [...data2];
+    departures = d3.rollup(trips, v => v.length, d => d.start_station_id);
+    arrivals = d3.rollup(trips, v => v.length, d => d.end_station_id);
+    stations = stations.map(station => {
+	let id = station.Number;
+	station.arrivals = arrivals.get(id) ?? 0;
+	station.departures = departures.get(id) ?? 0;
+	station.totalTraffic = station.arrivals + station.departures;
+	return station;
 });
+
+});
+
+
 </script>
 
 <h1>Bikewatching</h1>
@@ -68,7 +88,7 @@ onMount(async () => {
 	<svg>
     {#key mapViewChanged}
         {#each stations as station}
-	        <circle { ...getCoords(station) } r="5" fill="steelblue" />
+	        <circle { ...getCoords(station) } r={radiusScale(station.totalTraffic)} />
         {/each}
     {/key}
     </svg>

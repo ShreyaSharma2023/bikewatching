@@ -22,3 +22,9 @@ body {
     pointer-events: none; /* Allows map interactions through the SVG */
 }
 
+#map svg circle {
+    fill: steelblue;
+    fill-opacity: 0.6;  /* 60% opacity to reduce clutter */
+    stroke: white;
+    stroke-width: 1;
+}
